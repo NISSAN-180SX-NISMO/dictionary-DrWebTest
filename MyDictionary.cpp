@@ -1,6 +1,6 @@
 #include "MyDictionary.h"
 
-const unsigned short int HashFunction(const string& key) {
+const unsigned short int HashFunction(const std::string& key) {
 	unsigned short int hash = 5381;
 	for (char c : key) {
 		hash = ((hash << 5) + hash) + c;
@@ -16,4 +16,4 @@ const unsigned short int HashFunction(const double key) { return HashFunction(st
 
 const unsigned short int HashFunction(const char key) { return HashFunction(std::to_string(key)); }
 
-const unsigned short int HashFunction(const char* key) { return HashFunction(*(new string(key))); }
+const unsigned short int HashFunction(const char* key) { return HashFunction(*(new std::string(key))); }
