@@ -17,20 +17,27 @@ public:
 };
 
 
-template<class Key>
+
 class TableExceptions : public std::exception {
-public:
-    virtual const Key& get_key() const noexcept = 0;
 };
 
-
 template<class Key>
-class DublicateKey : public TableExceptions<Key> {
+class DublicateKey : public TableExceptions {
 private:
     Key key;
 public:
     DublicateKey(Key key) { this->key = key; }
-    const Key& get_key() const noexcept override {
+    const Key& get_key() const noexcept {
         return key;
+    }
+};
+
+class OutOfRange : public TableExceptions {
+private:
+    int index;
+public:
+    OutOfRange(int index) { this->index = index; }
+    const int& get_index() const noexcept {
+        return index;
     }
 };
