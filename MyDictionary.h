@@ -1,18 +1,16 @@
 #pragma once
 #include <string>
+#include <vector>
 #include <iostream>
 #include "Dictionary.h"
 #include "DictionaryExceptions.h"
 
-const unsigned short int CAPASITY = 1500;
+static unsigned short int CAPASITY = 1500;
 const unsigned char K = 3;
 
 const unsigned short int HashFunction(const std::string& key);
-const unsigned short int HashFunction(const int key);
-const unsigned short int HashFunction(const float key);
-const unsigned short int HashFunction(const double key);
-const unsigned short int HashFunction(const char key);
-const unsigned short int HashFunction(const char* key);
+template<class Key>
+const unsigned short int HashFunction(const Key key);
 
 template<class Key, class Value>
 class MyDictionary : public dictionary<Key, Value> {
@@ -26,7 +24,7 @@ private:
             this->value = value;
         }
     };
-    node<Key, Value>* TABLE[CAPASITY];
+    std::vector<node<Key, Value>*> TABLE;
     unsigned short int Size;
     void show(const node<Key, Value>* current, int index);
 public:
@@ -34,24 +32,38 @@ public:
     const Value& get(const Key& key) const override;
     void set(const Key& key, const Value& value) override;
     bool is_set(const Key& key) const override;
+    void resize(static unsigned short int new_CAPASITY);
+    const unsigned short int size() { return Size; }
     void print();
 };
 
 template<class Key, class Value>
 inline MyDictionary<Key, Value>::MyDictionary() {
     Size = 0;
-    for (int i = 0; i < CAPASITY; ++i) 
-        TABLE[i] = nullptr;
+    TABLE.resize(CAPASITY, nullptr);
 }
 
 template<class Key, class Value>
-inline const Value& MyDictionary<Key, Value>::get(const Key& key) const
-{
-    return nullptr;
+inline void MyDictionary<Key, Value>::resize(static unsigned short int new_CAPASITY){
+    CAPASITY = new_CAPASITY;
+    std::vector<node<Key, Value>*> tmp = TABLE;
+    TABLE.clear(); TABLE.resize(new_CAPASITY, nullptr);
+    Size = 0;
+    for (node<Key, Value>* &el : tmp) 
+        if (el) set(el->key, el->value);
+    tmp.clear();
+}
+
+template<class Key, class Value>
+inline const Value& MyDictionary<Key, Value>::get(const Key& key) const {
+    unsigned short int index = HashFunction(key);
+    if (!TABLE[index]) throw AbsentKey<Key>(key);
+    return TABLE[index]->value;
 }
 
 template<class Key, class Value>
 inline void MyDictionary<Key, Value>::set(const Key& key, const Value& value) {
+    if (Size >= 0.7 * CAPASITY) resize(CAPASITY * 2);
     unsigned short int index = HashFunction(key);
     unsigned long long i = 0;
     while (true) {
@@ -69,8 +81,9 @@ inline void MyDictionary<Key, Value>::set(const Key& key, const Value& value) {
 }
 
 template<class Key, class Value>
-inline bool MyDictionary<Key, Value>::is_set(const Key& key) const
-{
+inline bool MyDictionary<Key, Value>::is_set(const Key& key) const {
+    unsigned short int index = HashFunction(key);
+    if (TABLE[index]) return true;
     return false;
 }
 
@@ -86,4 +99,9 @@ inline void MyDictionary<Key, Value>::print() {
         if (TABLE[i])
             show(TABLE[i], i);
     }
+}
+
+template<class Key>
+inline const unsigned short int HashFunction(const Key key) {
+    return HashFunction(std::to_string(key));
 }

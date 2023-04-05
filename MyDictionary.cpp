@@ -5,15 +5,5 @@ const unsigned short int HashFunction(const std::string& key) {
 	for (char c : key) {
 		hash = ((hash << 5) + hash) + c;
 	}
-	return hash % 1500;
+	return hash % CAPASITY;
 }
-
-const unsigned short int HashFunction(const int key) { return HashFunction(std::to_string(key)); }
-
-const unsigned short int HashFunction(const float key) { return HashFunction(std::to_string(key)); }
-
-const unsigned short int HashFunction(const double key) { return HashFunction(std::to_string(key)); }
-
-const unsigned short int HashFunction(const char key) { return HashFunction(std::to_string(key)); }
-
-const unsigned short int HashFunction(const char* key) { return HashFunction(*(new std::string(key))); }
